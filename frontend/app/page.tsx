@@ -6,10 +6,9 @@ export default function Home() {
     <div className="flex h-screen w-full">
       {/* Left Panel - Form Side */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-black text-white px-6">
-        <div className="text-4xl font-bold mb-2 text-center">
-          Neumont Marketplace
+      <div className="text-4xl font-bold mb-2 text-center text-yellow-400">          Neumont Marketplace
         </div>
-        <div className="text-lg text-gold mb-8 text-center max-w-md">
+        <div className="text-lg text-gray-400 mb-8 text-center max-w-md">
           Buy, sell, and trade with other Neumont students — quick, easy, and trusted.
         </div>
 
