@@ -1,11 +1,13 @@
 import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
+import microsoft from "@/public/Microsoft.svg";
+import discord from "@/public/discord.png";
 
 export default function Home() {
   return (
     <div className="flex h-screen w-full">
       {/* Left Panel - Form Side */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-black text-white px-6">
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-zinc-800 text-white px-6">
       <div className="text-4xl font-bold mb-2 text-center text-yellow-400">          Neumont Marketplace
         </div>
         <div className="text-lg text-gray-400 mb-8 text-center max-w-md">
@@ -45,11 +47,23 @@ export default function Home() {
 
         {/* OAuth Buttons */}
         <div className="flex space-x-4 mt-6">
-          <button className="bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-100 transition">
-            Sign in with Google
+          <button className="bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-100 transition flex space-x-1">
+            Sign in with Discord
+            <Image 
+            alt="Discord Logo"
+            src={discord}
+            width={26}
+            height={26}
+            />
           </button>
-          <button className="bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-100 transition">
+          <button className="bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-100 transition flex space-x-1">
             Sign in with Microsoft
+            <Image
+              alt="Microsoft Logo"
+              src={microsoft}
+              width={24}
+              height={24}
+              />
           </button>
         </div>
 
