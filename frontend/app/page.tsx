@@ -5,84 +5,78 @@ import discord from "@/public/discord.png";
 
 export default function Home() {
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex h-screen w-full bg-zinc-900 text-white">
       
-      {/* Left Panel - Form Side */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-zinc-800 text-white px-6">
-
-      {/* Title and Description */}
-      <div className="text-4xl font-bold mb-2 text-center text-yellow-400">          
-        Neumont Marketplace
+      {/* Left Panel */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6">
+        
+        {/* Title */}
+        <div className="text-4xl font-bold mb-2 text-center text-[#fedc04]">
+          Neumont Marketplace
         </div>
-        <div className="text-lg text-gray-400 mb-8 text-center max-w-md">
+
+        {/* Description */}
+        <div className="text-lg text-zinc-400 mb-8 text-center max-w-md">
           Buy, sell, and trade with other Neumont students — quick, easy, and trusted.
         </div>
 
         {/* Sign In Form */}
-        <form className="bg-white p-8 rounded-xl shadow-lg space-y-6 w-full max-w-md text-black">
+        <form className="bg-zinc-800 p-8 rounded-xl shadow-lg space-y-6 w-full max-w-md border border-zinc-700">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-zinc-300 mb-1">
               Username
             </label>
             <input
               type="text"
               name="username"
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="block w-full rounded-md bg-zinc-900 border border-zinc-600 px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#fedc04]"
+              placeholder="Your username"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-zinc-300 mb-1">
               Password
             </label>
             <input
               type="password"
               name="password"
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="block w-full rounded-md bg-zinc-900 border border-zinc-600 px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#fedc04]"
+              placeholder="••••••••"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-[#fedc04] text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition"
           >
             Sign In
           </button>
         </form>
 
         {/* OAuth Buttons */}
-        <div className="flex space-x-4 mt-6">
-          <button className="bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-100 transition flex space-x-1">
+        <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-md">
+          <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
+            <Image alt="Discord Logo" src={discord} width={24} height={24} />
             Sign in with Discord
-            <Image 
-            alt="Discord Logo"
-            src={discord}
-            width={26}
-            height={26}
-            />
           </button>
-          <button className="bg-white text-black px-4 py-2 rounded-md shadow hover:bg-gray-100 transition flex space-x-1">
+          <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
+            <Image alt="Microsoft Logo" src={microsoft} width={22} height={22} />
             Sign in with Microsoft
-            <Image
-              alt="Microsoft Logo"
-              src={microsoft}
-              width={24}
-              height={24}
-              />
           </button>
         </div>
 
-        {/* Register Link */}
-        <div className="mt-4 text-sm text-gray-400">
+        {/* Register */}
+        <div className="mt-4 text-sm text-zinc-400">
           Don’t have an account?{" "}
-          <a href="/register" className="text-blue-400 hover:underline">
+          <a href="/register" className="text-[#fedc04] hover:underline">
             Register
           </a>
         </div>
       </div>
 
-      {/* Right Panel - Background Image */}
-      <div className="relative w-1/2 hidden md:block filter grayscale">
+      {/* Right Panel */}
+      <div className="relative w-1/2 hidden md:block grayscale contrast-125 brightness-90">
         <Image
           src={bgImg}
           alt="Background"
