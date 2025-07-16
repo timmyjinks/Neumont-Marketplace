@@ -6,14 +6,19 @@ import discord from "@/public/discord.png";
 export default function Home() {
   return (
     <div className="flex h-screen w-full">
+      
       {/* Left Panel - Form Side */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-zinc-800 text-white px-6">
-      <div className="text-4xl font-bold mb-2 text-center text-yellow-400">          Neumont Marketplace
+
+      {/* Title and Description */}
+      <div className="text-4xl font-bold mb-2 text-center text-yellow-400">          
+        Neumont Marketplace
         </div>
         <div className="text-lg text-gray-400 mb-8 text-center max-w-md">
           Buy, sell, and trade with other Neumont students — quick, easy, and trusted.
         </div>
 
+        {/* Sign In Form */}
         <form className="bg-white p-8 rounded-xl shadow-lg space-y-6 w-full max-w-md text-black">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
