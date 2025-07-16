@@ -1,3 +1,4 @@
+const cassandra = require('./cassandra');
 const express = require('express');
 const app = express();
 const port = 10101;
