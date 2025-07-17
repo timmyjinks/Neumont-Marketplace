@@ -8,6 +8,15 @@ services:
       - cassandra_data:/var/lib/cassandra
     networks:
       - neumont_market
+  
+  express:
+    build: ./chat
+    ports:
+      - 10101:10101
+    depends_on:
+      - cassandra
+    networks:
+      - neumont_market
 
 volumes:
   cassandra_data:
