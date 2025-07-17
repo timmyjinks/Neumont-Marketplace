@@ -1,0 +1,16 @@
+services:
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    ports:
+      - 9042:9042
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    networks:
+      - neumont_market
+
+volumes:
+  cassandra_data:
+
+networks:
+  neumont_market:
