@@ -7,7 +7,7 @@ export default function Register() {
   return (
     <div className="flex h-screen w-full bg-zinc-900 text-white">
       {/* Left Panel */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6">
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-8">
         
         {/* Title */}
         <div className="text-4xl font-bold mb-2 text-center text-[#fedc04]">
@@ -15,12 +15,12 @@ export default function Register() {
         </div>
 
         {/* Description */}
-        <div className="text-lg text-zinc-400 mb-8 text-center max-w-md">
+        <div className="text-lg text-zinc-400 mb-8 text-center max-w-lg">
           Register to buy, sell, and connect with Neumont students—secure and simple.
         </div>
 
         {/* Register Form */}
-        <form className="bg-zinc-800 p-8 rounded-xl shadow-lg space-y-6 w-full max-w-md border border-zinc-700">
+        <form className="bg-zinc-800 p-8 rounded-xl shadow-lg space-y-6 w-full max-w-lg border border-zinc-700">
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-1">
               Email
@@ -71,14 +71,14 @@ export default function Register() {
 
           <button
             type="submit"
-            className="w-full bg-[#fedc04] text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition"
+            className="w-full bg-[#fedc04] text-black font-semibold py-2 px-4x rounded-md hover:bg-yellow-400 transition"
           >
             Create Account
           </button>
         </form>
 
         {/* OAuth Buttons */}
-        <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-md">
+        <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-lg">
           <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
             <Image alt="Discord Logo" src={discord} width={24} height={24} />
             Register with Discord
