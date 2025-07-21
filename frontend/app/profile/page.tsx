@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
-import SideBar from "@/app/componets/Profile-side";
+import SideBar from "@/app/componets/profile-side";
 import { useState, useEffect } from "react";
 
 export default function ProfileDashboard() {
