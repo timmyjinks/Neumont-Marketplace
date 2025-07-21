@@ -16,12 +16,12 @@ export default function Home() {
         </div>
 
         {/* Description */}
-        <div className="text-lg text-zinc-400 mb-8 text-center max-w-md">
+        <div className="text-lg text-zinc-400 mb-8 text-center max-w-lg">
           Buy, sell, and trade with other Neumont students — quick, easy, and trusted.
         </div>
 
         {/* Sign In Form */}
-        <form className="bg-zinc-800 p-8 rounded-xl shadow-lg space-y-6 w-full max-w-md border border-zinc-700">
+        <form className="bg-zinc-800 p-8 rounded-xl shadow-lg space-y-6 w-full max-w-lg border border-zinc-700">
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-1">
               Username
@@ -55,7 +55,7 @@ export default function Home() {
         </form>
 
         {/* OAuth Buttons */}
-        <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-md">
+        <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-lg">
           <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
             <Image alt="Discord Logo" src={discord} width={24} height={24} />
             Sign in with Discord
