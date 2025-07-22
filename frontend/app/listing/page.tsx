@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Card from "@/app/componets/card";
-import ProfileSide, { profileSide } from "@/app/componets/profile-side";
+import ProfileSide from "@/app/componets/filter-menu";
 
 const data = [
   {
@@ -46,20 +46,33 @@ export default function CardCarousel() {
   };
 
   return (
-    <div className="relative w-full h-96 flex items-center justify-center overflow-hidden">
+    <div className="flex min-h-screen bg-zinc-900 text-white">
+      {/* Sidebar on the left */}
       <ProfileSide />
-      <div className="relative w-72 h-full">
-        {data.map((card, i) => (
-          <div key={i} className={getCardStyle(i)}>
-            <Card {...card} />
-          </div>
-        ))}
-      </div>
-      <div className="absolute left-4 top-1/2 -translate-y-1/2">
-        <button onClick={prev} className="text-3xl text-yellow-400">←</button>
-      </div>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2">
-        <button onClick={next} className="text-3xl text-yellow-400">→</button>
+
+      {/* Carousel on the right */}
+      <div className="flex-grow flex items-center justify-center relative overflow-hidden">
+        <div className="relative w-72 h-96">
+          {data.map((card, i) => (
+            <div key={i} className={getCardStyle(i)}>
+              <Card {...card} />
+            </div>
+          ))}
+        </div>
+
+        {/* Navigation buttons */}
+        <button
+          onClick={prev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl text-yellow-400"
+        >
+          ←
+        </button>
+        <button
+          onClick={next}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-3xl text-yellow-400"
+        >
+          →
+        </button>
       </div>
     </div>
   );
