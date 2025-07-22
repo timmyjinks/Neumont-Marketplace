@@ -1,14 +1,25 @@
+"use client";
 import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
 import microsoft from "@/public/Microsoft.svg";
 import discord from "@/public/discord.png";
+import { signup } from "./actions";
+import { createClient } from "@/utils/supabase/client";
 
-export default function Register() {
+export default async function Register() {
+  async function signInWithDiscord() {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        redirectTo: `https://ksumsqqkkkopawmtjzvz.supabase.co/auth/v1/callback`,
+      },
+    });
+  }
   return (
     <div className="flex h-screen w-full bg-zinc-900 text-white">
       {/* Left Panel */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-8">
-        
         {/* Title */}
         <div className="text-4xl font-bold mb-2 text-center text-[#fedc04]">
           Join the Marketplace
@@ -16,7 +27,8 @@ export default function Register() {
 
         {/* Description */}
         <div className="text-lg text-zinc-400 mb-8 text-center max-w-lg">
-          Register to buy, sell, and connect with Neumont students—secure and simple.
+          Register to buy, sell, and connect with Neumont students—secure and
+          simple.
         </div>
 
         {/* Register Form */}
@@ -26,22 +38,10 @@ export default function Register() {
               Email
             </label>
             <input
-              type="email"
+              type="text"
               name="email"
               className="block w-full rounded-md bg-zinc-900 border border-zinc-600 px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#fedc04]"
-              placeholder="you@neumont.edu"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-1">
-              Username
-            </label>
-            <input
-              type="text"
-              name="username"
-              className="block w-full rounded-md bg-zinc-900 border border-zinc-600 px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#fedc04]"
-              placeholder="your_username"
+              placeholder="your_email"
             />
           </div>
 
@@ -84,7 +84,12 @@ export default function Register() {
             Register with Discord
           </button>
           <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
-            <Image alt="Microsoft Logo" src={microsoft} width={22} height={22} />
+            <Image
+              alt="Microsoft Logo"
+              src={microsoft}
+              width={22}
+              height={22}
+            />
             Register with Microsoft
           </button>
         </div>
