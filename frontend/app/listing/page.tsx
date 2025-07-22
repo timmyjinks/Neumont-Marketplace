@@ -55,7 +55,7 @@ export default function ListingPage() {
           {data.map((card, i) => (
             <div
               key={i}
-              className="bg-zinc-900 rounded-xl border border-zinc-800 shadow-lg p-4 hover:shadow-yellow-500/20 transition-shadow"
+              className="hover:scale-105 transition-transform duration-300 ease-in-out"
             >
               <Card {...card} />
             </div>

@@ -18,7 +18,7 @@ export default function Card({ src, category, description }: CardProps) {
         <img
           src={src}
           alt={`Image for ${category}`}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 ease-in-out"
+          className="w-full h-full object-cover"
         />
       </div>
 
