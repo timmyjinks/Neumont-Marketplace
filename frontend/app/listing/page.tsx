@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import Card from "@/app/componets/card";
-import FilterMenu from "@/app/componets/filter-menu";
+import Card from "@/app/componets/listing/card";
+import FilterMenu from "@/app/componets/listing/filter-menu";
 
 const data = [
   {
