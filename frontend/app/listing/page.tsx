@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Card from "@/app/componets/card";
+import ProfileSide, { profileSide } from "@/app/componets/profile-side";
 
 const data = [
   {
@@ -46,6 +47,7 @@ export default function CardCarousel() {
 
   return (
     <div className="relative w-full h-96 flex items-center justify-center overflow-hidden">
+      <ProfileSide />
       <div className="relative w-72 h-full">
         {data.map((card, i) => (
           <div key={i} className={getCardStyle(i)}>
