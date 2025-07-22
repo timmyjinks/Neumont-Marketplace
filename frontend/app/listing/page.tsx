@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Card from "@/app/componets/card";
-import ProfileSide from "@/app/componets/filter-menu";
+import FilterMenu from "@/app/componets/filter-menu";
 
 const data = [
   {
@@ -24,56 +24,44 @@ const data = [
     category: "Flow",
     description: "Fourth and wild",
   },
+  {
+    src: "/image1.jpg",
+    category: "Tech",
+    description: "Remix this one",
+  },
+  {
+    src: "/image2.jpg",
+    category: "Design",
+    description: "Doubling down",
+  },
 ];
 
-export default function CardCarousel() {
-  const [index, setIndex] = useState(0);
-
-  const prev = () =>
-    setIndex((prev) => (prev === 0 ? data.length - 1 : prev - 1));
-  const next = () =>
-    setIndex((prev) => (prev === data.length - 1 ? 0 : prev + 1));
-
-  const getCardStyle = (i: number) => {
-    const offset = i - index;
-    return `
-      absolute transition-all duration-500 ease-in-out
-      ${offset === 0 ? "z-20 scale-100" : "z-10 scale-90 opacity-60"}
-      ${offset === -1 ? "-translate-x-40" : ""}
-      ${offset === 1 ? "translate-x-40" : ""}
-      ${Math.abs(offset) > 1 ? "opacity-0 scale-75" : ""}
-    `;
-  };
+export default function ListingPage() {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]); // For future filter logic
 
   return (
-    <div className="flex min-h-screen bg-zinc-900 text-white">
-      {/* Sidebar on the left */}
-      <ProfileSide />
+    <div className="flex min-h-screen bg-zinc-950 text-white">
+      {/* Sidebar */}
+      <FilterMenu />
 
-      {/* Carousel on the right */}
-      <div className="flex-grow flex items-center justify-center relative overflow-hidden">
-        <div className="relative w-72 h-96">
+      {/* Listings Grid */}
+      <main className="flex-grow p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-[#fedc04]">Featured Listings</h1>
+          <p className="text-zinc-400">{data.length} items</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {data.map((card, i) => (
-            <div key={i} className={getCardStyle(i)}>
+            <div
+              key={i}
+              className="bg-zinc-900 rounded-xl border border-zinc-800 shadow-lg p-4 hover:shadow-yellow-500/20 transition-shadow"
+            >
               <Card {...card} />
             </div>
           ))}
         </div>
-
-        {/* Navigation buttons */}
-        <button
-          onClick={prev}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-3xl text-yellow-400"
-        >
-          ←
-        </button>
-        <button
-          onClick={next}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-3xl text-yellow-400"
-        >
-          →
-        </button>
-      </div>
+      </main>
     </div>
   );
 }

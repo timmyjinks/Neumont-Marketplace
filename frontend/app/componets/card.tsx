@@ -1,27 +1,31 @@
 type CardProps = {
-    src: string;
-    category: string;
-    description: string;
-  };
-  
-  export default function Card({ src, category, description }: CardProps) {
-    return (
-      <div className="flex flex-col items-center">
-        <div className="flex justify-center items-center space-x-3 bg-gray-900 w-56 rounded-t-xl">
-          <h2 className="text-lg font-bold">Category:</h2>
-          <p className="text-sm text-zinc-400">{category}</p>
-        </div>
-        <div className="w-64 h-64 bg-zinc-900 p-3 shadow-lg rounded-2xl overflow-hidden">
-          <img
-            src={src}
-            alt="Item image"
-            className="w-full h-full object-cover rounded-lg transition-transform duration-500"
-          />
-        </div>
-        <div className="flex justify-center items-center space-x-3 bg-gray-900 w-56 rounded-b-xl">
-          <p className="text-sm text-zinc-400 p-2">{description}</p>
-        </div>
+  src: string;
+  category: string;
+  description: string;
+};
+
+export default function Card({ src, category, description }: CardProps) {
+  return (
+    <div className="flex flex-col w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-md transition hover:shadow-yellow-500/20">
+      {/* Top Label */}
+      <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
+        <h2 className="text-sm font-semibold text-white">Category</h2>
+        <span className="text-xs text-[#fedc04] font-medium">{category}</span>
       </div>
-    );
-  }
-  
+
+      {/* Image */}
+      <div className="w-full h-48 sm:h-56 md:h-64 overflow-hidden">
+        <img
+          src={src}
+          alt={`Image for ${category}`}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 ease-in-out"
+        />
+      </div>
+
+      {/* Description */}
+      <div className="p-4 bg-zinc-800 border-t border-zinc-700 text-sm text-zinc-300">
+        {description}
+      </div>
+    </div>
+  );
+}
