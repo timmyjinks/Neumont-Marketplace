@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import PriceRangeSlider from "./price-slider";
+import PriceRangeSlider from "@/app/componets/listing/price-slider";
 
 const categories = ["Electronics", "Clothing", "Books", "Other"];
 const conditions = ["New", "Used"];
@@ -8,7 +8,6 @@ const sortOptions = ["Default", "Price: Low to High", "Price: High to Low"];
 
 export default function FilterMenu() {
   const [externalRange, setExternalRange] = useState<[number, number]>([15, 65]);
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const toggleCategory = (category: string) => {

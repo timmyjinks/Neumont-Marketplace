@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
-import SideBar from "@/app/componets/filter-menu";
+import SideBar from "@/app/componets/listing/filter-menu";
 import { useState, useEffect } from "react";
 import Card from "@/app/componets/listing/card";
 import { getUserInfo } from "@/lib/auth-actions";
