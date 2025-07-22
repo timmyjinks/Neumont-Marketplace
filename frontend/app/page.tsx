@@ -3,8 +3,8 @@ import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
 import microsoft from "@/public/Microsoft.svg";
 import discord from "@/public/discord.png";
-import { createClient } from "@/utils/supabase/client";
-import { login } from "./actions";
+import { createClient } from "@/lib/supabase/client";
+import { login } from "@/lib/auth-actions";
 
 export default function Home() {
   async function signInWithDiscord() {
@@ -67,7 +67,10 @@ export default function Home() {
 
         {/* OAuth Buttons */}
         <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-lg">
-          <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
+          <button
+            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2"
+            onClick={signInWithDiscord}
+          >
             <Image alt="Discord Logo" src={discord} width={24} height={24} />
             Sign in with Discord
           </button>

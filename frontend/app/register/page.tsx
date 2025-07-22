@@ -3,8 +3,8 @@ import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
 import microsoft from "@/public/Microsoft.svg";
 import discord from "@/public/discord.png";
-import { signup } from "./actions";
-import { createClient } from "@/utils/supabase/client";
+import { signup } from "@/lib/auth-actions";
+import { createClient } from "@/lib/supabase/client";
 
 export default async function Register() {
   async function signInWithDiscord() {
@@ -12,7 +12,7 @@ export default async function Register() {
     await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: `https://ksumsqqkkkopawmtjzvz.supabase.co/auth/v1/callback`,
+        redirectTo: process.env.NEXT_SUPABASE_PUBLIC_CALLBACK!,
       },
     });
   }
@@ -70,8 +70,8 @@ export default async function Register() {
           </div>
 
           <button
-            type="submit"
             className="w-full bg-[#fedc04] text-black font-semibold py-2 px-4x rounded-md hover:bg-yellow-400 transition"
+            formAction={signup}
           >
             Create Account
           </button>
@@ -79,7 +79,10 @@ export default async function Register() {
 
         {/* OAuth Buttons */}
         <div className="flex flex-col md:flex-row items-center gap-4 mt-6 w-full max-w-lg">
-          <button className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2">
+          <button
+            className="w-full bg-zinc-700 text-white px-4 py-2 rounded-md shadow hover:bg-zinc-600 transition flex items-center justify-center gap-2"
+            onClick={signInWithDiscord}
+          >
             <Image alt="Discord Logo" src={discord} width={24} height={24} />
             Register with Discord
           </button>
