@@ -1,106 +1,171 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import noUiSlider from "nouislider";
 
-export default function PriceRangeSlider() {
-  const sliderRef = useRef<HTMLDivElement>(null);
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+
+export type PriceRangeHandle = {
+  getRange: () => [number, number];
+};
+
+type DragTarget = "min" | "max" | null;
+
+type Props = {
+  onChange?: (range: [number, number]) => void;
+};
+
+const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref) => {
   const [priceRange, setPriceRange] = useState<[number, number]>([15, 65]);
-  interface NoUiSliderElement extends HTMLDivElement {
-    noUiSlider: any;
-  }
+  const [isDragging, setIsDragging] = useState<DragTarget>(null);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+  const [min, max] = priceRange;
+
+  // Expose internal state via ref
+  useImperativeHandle(ref, () => ({
+    getRange: () => priceRange,
+  }));
+
+  // Fire external callback on change
+  useEffect(() => {
+    if (onChange) onChange(priceRange);
+  }, [priceRange, onChange]);
+
+  const getValueFromPosition = useCallback((clientX: number): number => {
+    if (!sliderRef.current) return 0;
+    const rect = sliderRef.current.getBoundingClientRect();
+    const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round(percentage * 100);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
+      const value = getValueFromPosition(e.clientX);
+
+      if (isDragging === "min") {
+        setPriceRange([Math.min(value, max - 1), max]);
+      } else {
+        setPriceRange([min, Math.max(value, min + 1)]);
+      }
+    },
+    [isDragging, min, max, getValueFromPosition]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(null);
+  }, []);
 
   useEffect(() => {
-    if (!sliderRef.current) return;
-
-    // Only init once
-    if (sliderRef.current && !(sliderRef.current as NoUiSliderElement).noUiSlider) {
-        noUiSlider.create(sliderRef.current, {
-        start: priceRange,
-        connect: true,
-        range: {
-          min: 0,
-          max: 100,
-        },
-        tooltips: [true, true],
-        format: {
-          to: (value) => Math.round(value),
-          from: (value) => Number(value),
-        },
-        cssClasses: {
-            target: "relative h-2 rounded-full bg-neutral/10 range-slider-disabled:pointer-events-none range-slider-disabled:opacity-50",
-            base: "size-full relative z-1",
-            origin: "absolute top-0 end-0 rtl:start-0 size-full origin-[0_0] rounded-full",
-            handle: "absolute top-1/2 end-0 rtl:start-0 size-4 bg-base-100 border-[3px] border-primary rounded-full translate-x-2/4 -translate-y-2/4 hover:cursor-grab active:cursor-grabbing hover:ring-2 ring-primary active:ring-[3px]",
-            connects: "relative z-0 w-full h-2 overflow-hidden",
-            connect: "absolute top-0 end-0 rtl:start-0 z-1 size-full bg-primary origin-[0_0]",
-            touchArea: "absolute -top-1 -bottom-1 -start-1 -end-1",
-            tooltip: "bg-neutral text-sm text-neutral-content shadow-base-300/20 py-1 px-2 rounded-selector mb-3 absolute bottom-full start-2/4 -translate-x-2/4 rtl:translate-x-2/4 shadow-md",
-            handleLower: "",
-            handleUpper: "",
-            horizontal: "",
-            vertical: "",
-            background: "",
-            ltr: "",
-            rtl: "",
-            textDirectionLtr: "",
-            textDirectionRtl: "",
-            draggable: "",
-            drag: "",
-            tap: "",
-            active: "",
-            pips: "",
-            pipsHorizontal: "",
-            pipsVertical: "",
-            marker: "",
-            markerHorizontal: "",
-            markerVertical: "",
-            markerNormal: "",
-            markerLarge: "",
-            markerSub: "",
-            value: "",
-            valueHorizontal: "",
-            valueVertical: "",
-            valueNormal: "",
-            valueLarge: "",
-            valueSub: ""
-        },
-      });
-
-      (sliderRef.current as NoUiSliderElement).noUiSlider?.on("update", (values: string[]) => {
-        const min = parseInt(values[0] as string);
-        const max = parseInt(values[1] as string);
-        setPriceRange([min, max]);
-      });
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
     }
-  }, [sliderRef]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  const handleMouseDown = (thumb: DragTarget) => (e: React.MouseEvent) => {
+    setIsDragging(thumb);
+    e.preventDefault();
+  };
+
+  const handleTrackClick = (e: React.MouseEvent) => {
+    if (isDragging) return;
+
+    const value = getValueFromPosition(e.clientX);
+    const distanceToMin = Math.abs(value - min);
+    const distanceToMax = Math.abs(value - max);
+
+    if (distanceToMin < distanceToMax) {
+      setPriceRange([Math.min(value, max - 1), max]);
+    } else {
+      setPriceRange([min, Math.max(value, min + 1)]);
+    }
+  };
+
+  const handleMinChange = (value: number) => {
+    const newMin = Math.min(value, max - 1);
+    setPriceRange([newMin, max]);
+  };
+
+  const handleMaxChange = (value: number) => {
+    const newMax = Math.max(value, min + 1);
+    setPriceRange([min, newMax]);
+  };
 
   return (
-    <div className="mt-6 mb-4">
-      <label className="block text-sm font-medium text-zinc-300 mb-2">
-        Price Range
+    <div className="mt-6 mb-6">
+      <label className="block text-sm font-medium text-zinc-300 mb-6">
+        Price Range: ${min} - ${max}
       </label>
 
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <input
-          type="number"
-          value={priceRange[0]}
-          onChange={(e) =>
-            setPriceRange([Number(e.target.value), priceRange[1]])
-          }
-          className="w-1/2 rounded-md px-2 py-1 bg-zinc-800 text-white border border-zinc-600 focus:outline-none"
-        />
-        <span className="text-white">-</span>
-        <input
-          type="number"
-          value={priceRange[1]}
-          onChange={(e) =>
-            setPriceRange([priceRange[0], Number(e.target.value)])
-          }
-          className="w-1/2 rounded-md px-2 py-1 bg-zinc-800 text-white border border-zinc-600 focus:outline-none"
-        />
+      {/* Slider */}
+      <div className="relative mb-8">
+        <div
+          ref={sliderRef}
+          className="relative h-2 bg-zinc-700 rounded-full cursor-pointer"
+          onClick={handleTrackClick}
+        >
+          <div
+            className="absolute h-2 bg-[#fedc04] rounded-full pointer-events-none"
+            style={{ left: `${min}%`, width: `${max - min}%` }}
+          />
+
+          {/* Min thumb */}
+          <div
+            className={`absolute w-5 h-5 bg-zinc-900 border-2 border-[#fedc04] rounded-full cursor-grab transform -translate-x-1/2 -translate-y-1.5 transition-transform duration-150 hover:scale-110 shadow-lg z-10 ${
+              isDragging === "min" ? "scale-110 cursor-grabbing shadow-xl" : ""
+            }`}
+            style={{ left: `${min}%` }}
+            onMouseDown={handleMouseDown("min")}
+          />
+
+          {/* Max thumb */}
+          <div
+            className={`absolute w-5 h-5 bg-zinc-900 border-2 border-[#fedc04] rounded-full cursor-grab transform -translate-x-1/2 -translate-y-1.5 transition-transform duration-150 hover:scale-110 shadow-lg z-10 ${
+              isDragging === "max" ? "scale-110 cursor-grabbing shadow-xl" : ""
+            }`}
+            style={{ left: `${max}%` }}
+            onMouseDown={handleMouseDown("max")}
+          />
+        </div>
       </div>
 
-      <div ref={sliderRef} className="sm:mt-7 mt-10"></div>
+      {/* Inputs */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex-1">
+          <label className="block text-xs text-zinc-400 mb-1">Min</label>
+          <input
+            type="number"
+            value={min}
+            onChange={(e) => handleMinChange(Number(e.target.value))}
+            className="w-full rounded-lg px-3 py-2 bg-zinc-800 text-white border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            min={0}
+            max={100}
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs text-zinc-400 mb-1">Max</label>
+          <input
+            type="number"
+            value={max}
+            onChange={(e) => handleMaxChange(Number(e.target.value))}
+            className="w-full rounded-lg px-3 py-2 bg-zinc-800 text-white border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            min={0}
+            max={100}
+          />
+        </div>
+      </div>
     </div>
   );
-}
+});
+
+PriceRangeSlider.displayName = "PriceRangeSlider";
+export default PriceRangeSlider;
