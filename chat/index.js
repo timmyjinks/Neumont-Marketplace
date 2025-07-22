@@ -1,20 +1,36 @@
 const cassandra = require('./cassandra');
 const express = require('express');
 const app = express();
-const port = 10101;
+const port = 10101;//Blackjack
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
 // Status check
 app.get('/', (req, res) => {
+	
 	res.send('Hello World!');
 });
 
 //  Get all chats
 app.get('/chat/', (req, res) => {
+	client.execute("SELECT * FROM users")
+	.then(result => console.log(result.rows));
 	res.send('All chats loaded.');
 });
+
+// Make a Chat
+app.post('/chat', (req, res) => {
+    const user1 = req.query.user1;
+    const user2 = req.query.user2;
+
+    if (!user1 || !user2) {
+        return res.status(400).send('Both user1 and user2 are required.');
+    }
+
+    res.send(`New chat created between ${user1} and ${user2}`);
+});
+
 
 // Delete a specific chat
 app.delete('/chat/:chatId', (req, res) => {
