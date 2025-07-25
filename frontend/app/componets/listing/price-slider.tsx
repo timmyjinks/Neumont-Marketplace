@@ -16,24 +16,18 @@ export type PriceRangeHandle = {
 type DragTarget = "min" | "max" | null;
 
 type Props = {
+  value: [number, number];
   onChange?: (range: [number, number]) => void;
 };
 
-const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref) => {
-  const [priceRange, setPriceRange] = useState<[number, number]>([15, 65]);
+const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ value, onChange }, ref) => {
   const [isDragging, setIsDragging] = useState<DragTarget>(null);
   const sliderRef = useRef<HTMLDivElement | null>(null);
-  const [min, max] = priceRange;
+  const [min, max] = value;
 
-  // Expose internal state via ref
   useImperativeHandle(ref, () => ({
-    getRange: () => priceRange,
+    getRange: () => value,
   }));
-
-  // Fire external callback on change
-  useEffect(() => {
-    if (onChange) onChange(priceRange);
-  }, [priceRange, onChange]);
 
   const getValueFromPosition = useCallback((clientX: number): number => {
     if (!sliderRef.current) return 0;
@@ -45,15 +39,16 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!isDragging) return;
-      const value = getValueFromPosition(e.clientX);
-
+      const valueFromPos = getValueFromPosition(e.clientX);
       if (isDragging === "min") {
-        setPriceRange([Math.min(value, max - 1), max]);
+        const newMin = Math.min(valueFromPos, max - 1);
+        if (onChange) onChange([newMin, max]);
       } else {
-        setPriceRange([min, Math.max(value, min + 1)]);
+        const newMax = Math.max(valueFromPos, min + 1);
+        if (onChange) onChange([min, newMax]);
       }
     },
-    [isDragging, min, max, getValueFromPosition]
+    [isDragging, min, max, getValueFromPosition, onChange]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -78,26 +73,26 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
 
   const handleTrackClick = (e: React.MouseEvent) => {
     if (isDragging) return;
-
-    const value = getValueFromPosition(e.clientX);
-    const distanceToMin = Math.abs(value - min);
-    const distanceToMax = Math.abs(value - max);
-
+    const valueFromPos = getValueFromPosition(e.clientX);
+    const distanceToMin = Math.abs(valueFromPos - min);
+    const distanceToMax = Math.abs(valueFromPos - max);
     if (distanceToMin < distanceToMax) {
-      setPriceRange([Math.min(value, max - 1), max]);
+      const newMin = Math.min(valueFromPos, max - 1);
+      if (onChange) onChange([newMin, max]);
     } else {
-      setPriceRange([min, Math.max(value, min + 1)]);
+      const newMax = Math.max(valueFromPos, min + 1);
+      if (onChange) onChange([min, newMax]);
     }
   };
 
-  const handleMinChange = (value: number) => {
-    const newMin = Math.min(value, max - 1);
-    setPriceRange([newMin, max]);
+  const handleMinChange = (valueNum: number) => {
+    const newMin = Math.min(valueNum, max - 1);
+    if (onChange) onChange([newMin, max]);
   };
 
-  const handleMaxChange = (value: number) => {
-    const newMax = Math.max(value, min + 1);
-    setPriceRange([min, newMax]);
+  const handleMaxChange = (valueNum: number) => {
+    const newMax = Math.max(valueNum, min + 1);
+    if (onChange) onChange([min, newMax]);
   };
 
   return (
@@ -105,8 +100,6 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
       <label className="block text-sm font-medium text-zinc-300 mb-6">
         Price Range: ${min} - ${max}
       </label>
-
-      {/* Slider */}
       <div className="relative mb-8">
         <div
           ref={sliderRef}
@@ -117,8 +110,6 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
             className="absolute h-2 bg-[#fedc04] rounded-full pointer-events-none"
             style={{ left: `${min}%`, width: `${max - min}%` }}
           />
-
-          {/* Min thumb */}
           <div
             className={`absolute w-5 h-5 bg-zinc-900 border-2 border-[#fedc04] rounded-full cursor-grab transform -translate-x-1/2 -translate-y-1.5 transition-transform duration-150 hover:scale-110 shadow-lg z-10 ${
               isDragging === "min" ? "scale-110 cursor-grabbing shadow-xl" : ""
@@ -126,8 +117,6 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
             style={{ left: `${min}%` }}
             onMouseDown={handleMouseDown("min")}
           />
-
-          {/* Max thumb */}
           <div
             className={`absolute w-5 h-5 bg-zinc-900 border-2 border-[#fedc04] rounded-full cursor-grab transform -translate-x-1/2 -translate-y-1.5 transition-transform duration-150 hover:scale-110 shadow-lg z-10 ${
               isDragging === "max" ? "scale-110 cursor-grabbing shadow-xl" : ""
@@ -137,8 +126,6 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
           />
         </div>
       </div>
-
-      {/* Inputs */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1">
           <label className="block text-xs text-zinc-400 mb-1">Min</label>
@@ -148,7 +135,7 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
             onChange={(e) => handleMinChange(Number(e.target.value))}
             className="w-full rounded-lg px-3 py-2 bg-zinc-800 text-white border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             min={0}
-            max={100}
+            max={500}
           />
         </div>
         <div className="flex-1">
@@ -159,7 +146,7 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ onChange }, ref)
             onChange={(e) => handleMaxChange(Number(e.target.value))}
             className="w-full rounded-lg px-3 py-2 bg-zinc-800 text-white border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             min={0}
-            max={100}
+            max={500}
           />
         </div>
       </div>
