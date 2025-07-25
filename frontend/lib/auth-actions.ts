@@ -18,7 +18,7 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/listings");
 }
 
 export async function signup(formData: FormData) {
@@ -39,5 +39,18 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/listings");
+}
+
+export async function getUserInfo() {
+  const supabase = await createClient();
+  const user = await supabase.auth.getUser();
+  return user.data.user;
+}
+
+export async function logout() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+
+  redirect("/login");
 }
