@@ -1,5 +1,6 @@
 import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
+import { signOut } from "@/lib/auth-actions";
 
 
 export default function ProfileSide() {
@@ -28,7 +29,7 @@ export default function ProfileSide() {
         </div>
 
         <div className="space-y-4 text-zinc-400">
-          <button className="hover:text-red-500">🚪 Logout</button>
+          <button onClick={signOut} className="hover:text-red-500">🚪 Logout</button>
           <button className="hover:text-yellow-400">⚙️ Settings</button>
         </div>
       </aside>
