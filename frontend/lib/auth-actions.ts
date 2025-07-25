@@ -54,3 +54,23 @@ export async function logout() {
 
   redirect("/login");
 }
+
+export async function signInWithDiscord() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "discord",
+    options: {
+      redirectTo: process.env.NEXT_PUBLIC_SUPABASE_CALLBACK!,
+    },
+  });
+
+  if (data.url) {
+    redirect(data.url); // use the redirect API for your server framework
+  }
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
+  redirect("/");
+}

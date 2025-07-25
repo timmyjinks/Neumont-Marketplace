@@ -3,19 +3,9 @@ import Image from "next/image";
 import bgImg from "@/public/Neumontt.jpg";
 import microsoft from "@/public/Microsoft.svg";
 import discord from "@/public/discord.png";
-import { signup } from "@/lib/auth-actions";
-import { createClient } from "@/lib/supabase/client";
+import { signup, signInWithDiscord } from "@/lib/auth-actions";
 
 export default async function Register() {
-  async function signInWithDiscord() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "discord",
-      options: {
-        redirectTo: process.env.NEXT_SUPABASE_PUBLIC_CALLBACK!,
-      },
-    });
-  }
   return (
     <div className="flex h-screen w-full bg-zinc-900 text-white">
       {/* Left Panel */}
