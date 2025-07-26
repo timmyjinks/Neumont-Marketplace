@@ -35,7 +35,7 @@ export default function ListingPage() {
           filters.category,
           filters.minPrice,
           filters.maxPrice,
-          filters.condition
+          filters.condition,
         );
         setListings(data.data || []);
         setError("");
