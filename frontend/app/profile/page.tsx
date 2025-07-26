@@ -5,7 +5,7 @@ import SideBar from "@/app/componets/profile-side";
 import { useState, useEffect } from "react";
 import Card from "@/app/componets/listing/card";
 import { createClient } from "@/lib/supabase/client";
-import { deleteItem } from "@/lib/list-actions";
+import { deleteItem } from "@/lib/listing-actions";
 
 export default function ProfileDashboard() {
   const [theme, setTheme] = useState("dark");
