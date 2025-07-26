@@ -1,4 +1,4 @@
-const cassandra = require('./cassandra');
+const { client, addChat } = require('./cassandra');
 const express = require('express');
 const app = express();
 const port = 10101;//Blackjack
@@ -8,27 +8,28 @@ app.use(express.json());
 
 // Status check
 app.get('/', (req, res) => {
-	
+
 	res.send('Hello World!');
 });
 
 //  Get all chats
 app.get('/chat/', (req, res) => {
-	client.execute("SELECT * FROM users")
-	.then(result => console.log(result.rows));
 	res.send('All chats loaded.');
 });
 
 // Make a Chat
 app.post('/chat', (req, res) => {
-    const user1 = req.query.user1;
-    const user2 = req.query.user2;
+	const { name, participants } = req.body;
 
-    if (!user1 || !user2) {
-        return res.status(400).send('Both user1 and user2 are required.');
-    }
-
-    res.send(`New chat created between ${user1} and ${user2}`);
+	if (!name || !Array.isArray(participants) || participants.length < 2) {
+		return res.status(400).send('Chat name and at least two participants are required.');
+	}
+	addChat(client, name, participants)
+  .then(chatId => res.send(`New chat created with ID ${chatId}`))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error creating chat');
+  });
 });
 
 

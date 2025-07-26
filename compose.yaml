@@ -8,15 +8,24 @@ services:
       - cassandra_data:/var/lib/cassandra
     networks:
       - neumont_market
-  
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   express:
     build: ./chat
+    container_name: express
     ports:
       - 10101:10101
     depends_on:
-      - cassandra
+      cassandra:
+        condition: service_healthy
     networks:
       - neumont_market
+    environment:
+      - CASSANDRA_CONTACT_POINT=cassandra  # optional, for env config
 
 volumes:
   cassandra_data:
