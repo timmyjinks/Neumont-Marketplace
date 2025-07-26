@@ -3,6 +3,7 @@ type CardProps = {
   category: string;
   payment_methods: string[];
   description: string;
+  price: Number;
   onDelete: (id: string) => void | null;
   id: string;
 };
@@ -12,6 +13,7 @@ export default function Card({
   category,
   description,
   payment_methods,
+  price,
   onDelete,
   id,
 }: CardProps) {
@@ -43,17 +45,23 @@ export default function Card({
           ))}
       </div>
 
+      {/* Payment Method */}
+      <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
+        <h2 className="text-sm font-semibold text-white">Price</h2>
+        <span className="text-xs text-[#fedc04] font-medium">{price}</span>
+      </div>
+
       {/* Description */}
       <div className="p-4 bg-zinc-800 border-t border-zinc-700 text-sm text-zinc-300">
         {description}
       </div>
       {onDelete && (
-      <button
-        onClick={() => onDelete(id)}
-        className="bg-red-500 text-white px-4 py-2 rounded-md"
-      >
-        Delete
-      </button>
+        <button
+          onClick={() => onDelete(id)}
+          className="bg-red-500 text-white px-4 py-2 rounded-md"
+        >
+          Delete
+        </button>
       )}
     </div>
   );

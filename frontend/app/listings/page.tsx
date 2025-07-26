@@ -22,7 +22,9 @@ export default function ListingPage() {
 
   // Update URL when filters change
   useEffect(() => {
-    const query = new URLSearchParams(filters as Record<string, string>).toString();
+    const query = new URLSearchParams(
+      filters as Record<string, string>,
+    ).toString();
     router.push(`?${query}`);
   }, [filters, router]);
 
@@ -72,7 +74,15 @@ export default function ListingPage() {
                 key={i}
                 className="hover:scale-105 transition-transform duration-300 ease-in-out"
               >
-                <Card image_url={card.image_url} category={card.category} description={card.description} payment_methods={card.payment_methods} onDelete={null} id={card.id} />
+                <Card
+                  image_url={card.image_url}
+                  price={card.price}
+                  category={card.category}
+                  description={card.description}
+                  payment_methods={card.payment_methods}
+                  onDelete={null}
+                  id={card.id}
+                />
               </div>
             ))}
           </div>
