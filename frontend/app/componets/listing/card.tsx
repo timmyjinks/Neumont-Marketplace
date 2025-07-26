@@ -3,7 +3,7 @@ type CardProps = {
   category: string;
   payment_methods: string[];
   description: string;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void | null;
   id: string;
 };
 
@@ -47,12 +47,14 @@ export default function Card({
       <div className="p-4 bg-zinc-800 border-t border-zinc-700 text-sm text-zinc-300">
         {description}
       </div>
+      {onDelete && (
       <button
         onClick={() => onDelete(id)}
         className="bg-red-500 text-white px-4 py-2 rounded-md"
       >
         Delete
       </button>
+      )}
     </div>
   );
 }

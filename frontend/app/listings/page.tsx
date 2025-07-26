@@ -72,7 +72,7 @@ export default function ListingPage() {
                 key={i}
                 className="hover:scale-105 transition-transform duration-300 ease-in-out"
               >
-                <Card image_url={card.image_url} category={card.category} description={card.description} payment_methods={card.payment_methods} />
+                <Card image_url={card.image_url} category={card.category} description={card.description} payment_methods={card.payment_methods} onDelete={null} id={card.id} />
               </div>
             ))}
           </div>
