@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { validate as isUuid } from 'uuid';
 import uuidTime from 'uuid-time';
 
@@ -14,9 +14,6 @@ export default function Chat({ userUuid }) {
     const [isLoadingChats, setIsLoadingChats] = useState(false);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const [isSendingMessage, setIsSendingMessage] = useState(false);
-    const [newChatName, setNewChatName] = useState('');
-    const [newChatParticipants, setNewChatParticipants] = useState('');
-    const [isCreatingChat, setIsCreatingChat] = useState(false);
     const messagesEndRef = useRef(null);
 
     const apiBaseUrl = 'http://localhost:10101';
@@ -37,18 +34,19 @@ export default function Chat({ userUuid }) {
 
         const fetchChats = async () => {
             setIsLoadingChats(true);
-            setError(null);
             try {
                 const response = await fetch(`${apiBaseUrl}/chat/${encodeURIComponent(userUuid)}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Failed to fetch chats: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error('Failed to fetch chats');
                 const data = await response.json();
-                setChats(data);
+
+                setChats((prevChats) => {
+                    const prevIds = prevChats.map((c) => c.chat_id).sort().join(',');
+                    const newIds = data.map((c) => c.chat_id).sort().join(',');
+                    return prevIds !== newIds ? data : prevChats;
+                });
             } catch (err) {
                 console.error('Error fetching chats:', err);
-                setError(err.message || 'Failed to load chats. Please try again later.');
+                setError(err.message || 'Failed to load chats.');
             } finally {
                 setIsLoadingChats(false);
             }
@@ -57,74 +55,73 @@ export default function Chat({ userUuid }) {
         fetchChats();
     }, [userUuid]);
 
-    useEffect(() => {
+    const fetchMessages = async () => {
         if (!selectedChat) {
             setMessages([]);
             return;
         }
 
-        const fetchMessages = async () => {
-            setIsLoadingMessages(true);
-            setError(null);
-            try {
-                const response = await fetch(`${apiBaseUrl}/chat/${selectedChat}/message/`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Failed to fetch messages: ${response.statusText}`);
+        setIsLoadingMessages(true);
+        try {
+            const response = await fetch(`${apiBaseUrl}/chat/${selectedChat}/message/`);
+            if (!response.ok) throw new Error('Failed to fetch messages');
+            const data = await response.json();
+
+            const sortedMessages = data.sort((a, b) => {
+                try {
+                    return uuidTime.v1(a.message_time) - uuidTime.v1(b.message_time);
+                } catch (err) {
+                    console.warn('Invalid message_time UUID:', a.message_time, b.message_time);
+                    return 0;
                 }
-                const data = await response.json();
-                const sortedMessages = data.sort((a, b) => {
-                    try {
-                        return uuidTime.v1(a.message_time) - uuidTime.v1(b.message_time);
-                    } catch {
-                        return 0;
-                    }
-                });
-                setMessages(sortedMessages);
-                scrollToBottom();
+            });
 
-                await fetch(`${apiBaseUrl}/chat/${selectedChat}/messages/read`, { method: 'POST' });
-            } catch (err) {
-                console.error('Error fetching messages:', err);
-                setError(err.message || 'Failed to load messages. Please try again.');
-            } finally {
-                setIsLoadingMessages(false);
-            }
-        };
+            setMessages(sortedMessages);
+            scrollToBottom();
+            await fetch(`${apiBaseUrl}/chat/${selectedChat}/messages/read`, { method: 'POST' });
+        } catch (err) {
+            console.error('Error fetching messages:', err);
+            setError(err.message || 'Failed to load messages.');
+        } finally {
+            setIsLoadingMessages(false);
+        }
+    };
 
+    useEffect(() => {
         fetchMessages();
     }, [selectedChat]);
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen);
-        if (isChatOpen) {
-            setSelectedChat(null);
-            setError(null);
-            setNewChatName('');
-            setNewChatParticipants('');
-        }
+        setSelectedChat(null);
+        setError(null);
+        setNewMessage('');
     };
 
     const selectChat = (chatId) => {
         setSelectedChat(chatId);
         setError(null);
+        setNewMessage('');
     };
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!newMessage.trim() || !selectedChat || isSendingMessage) return;
+        const trimmedMessage = newMessage.trim();
+        if (!trimmedMessage || !selectedChat || isSendingMessage || trimmedMessage.length > 1000) {
+            if (trimmedMessage.length > 1000) {
+                setError('Message is too long (max 1000 characters).');
+            }
+            return;
+        }
 
         setIsSendingMessage(true);
         try {
             const response = await fetch(`${apiBaseUrl}/chat/${selectedChat}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uuid: userUuid, content: newMessage.trim() }),
+                body: JSON.stringify({ uuid: userUuid, content: trimmedMessage }),
             });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Failed to send message: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error('Failed to send message');
             const data = await response.json();
 
             const newMsg = {
@@ -132,7 +129,7 @@ export default function Chat({ userUuid }) {
                 message_time: data.message_time,
                 message_id: data.message_id,
                 from_user: userUuid,
-                content: newMessage.trim(),
+                content: trimmedMessage,
                 read: false,
             };
 
@@ -141,115 +138,67 @@ export default function Chat({ userUuid }) {
             setTimeout(scrollToBottom, 100);
         } catch (err) {
             console.error('Error sending message:', err);
-            setError(err.message || 'Failed to send message. Please try again.');
+            setError(err.message || 'Failed to send message.');
         } finally {
             setIsSendingMessage(false);
         }
     };
 
-    const handleCreateChat = async (e) => {
-        e.preventDefault();
-        if (!newChatName.trim() || !newChatParticipants.trim() || isCreatingChat) return;
-
-        const participants = newChatParticipants
-            .split(',')
-            .map((id) => id.trim())
-            .filter((id) => id);
-
-        if (participants.length < 2 || !participants.every((id) => isUuid(id))) {
-            setError('At least two valid participant UUIDs are required, separated by commas.');
-            return;
-        }
-
-        if (!participants.includes(userUuid)) {
-            participants.push(userUuid);
-        }
-
-        setIsCreatingChat(true);
+    const formatTime = useCallback((uuid) => {
         try {
-            const response = await fetch(`${apiBaseUrl}/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newChatName.trim(), participants }),
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Failed to create chat: ${response.statusText}`);
-            }
-            const data = await response.json();
-
-            const newChat = {
-                chat_id: data.chat_id,
-                name: newChatName.trim(),
-                participants,
-                created_at: new Date().toISOString(),
-            };
-
-            setChats((prev) => [...prev, newChat]);
-            setNewChatName('');
-            setNewChatParticipants('');
-            setSelectedChat(data.chat_id);
-            setError(null);
-        } catch (err) {
-            console.error('Error creating chat:', err);
-            setError(err.message || 'Failed to create chat. Please try again.');
-        } finally {
-            setIsCreatingChat(false);
-        }
-    };
-
-    const formatTime = (uuid) => {
-        try {
-            const timestamp = uuidTime.v1(uuid); // Extract milliseconds from timeuuid
+            const timestamp = uuidTime.v1(uuid);
             const date = new Date(timestamp);
             return new Intl.DateTimeFormat('en-US', {
                 hour: 'numeric',
                 minute: 'numeric',
             }).format(date);
-        } catch (err) {
-            console.warn('Invalid timeuuid:', uuid);
+        } catch {
             return 'Invalid time';
         }
-    };
+    }, []);
 
     return (
         <div className="fixed bottom-4 right-4 z-50">
             {isChatOpen && (
-                <div className="bg-white shadow-xl rounded-lg mb-4 w-96 max-h-[32rem] overflow-hidden flex flex-col">
+                <div className="bg-white shadow-xl rounded-lg mb-4 w-96 max-w-full sm:w-[80vw] max-h-[32rem] overflow-hidden flex flex-col">
                     <div className="p-2 border-b border-gray-200 flex justify-between items-center">
                         <h3 className="text-sm font-semibold text-gray-800">Chats</h3>
-                        <button onClick={toggleChat} className="text-gray-500 hover:text-gray-700">✕</button>
+                        <div className="flex items-center space-x-2">
+                            {selectedChat && (
+                                <button
+                                    onClick={fetchMessages}
+                                    className="text-gray-500 hover:text-gray-700"
+                                    aria-label="Refresh messages"
+                                    disabled={isLoadingMessages}
+                                >
+                                    <svg
+                                        className={`w-5 h-5 ${isLoadingMessages ? 'animate-spin' : ''}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9H9m-5 6H2v5h.582A8.001 8.001 0 0117.418 15H13"
+                                        />
+                                    </svg>
+                                </button>
+                            )}
+                            <button
+                                onClick={toggleChat}
+                                className="text-gray-500 hover:text-gray-700"
+                                aria-label="Close chat"
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
 
                     {error && <div className="p-2 bg-red-100 text-red-600 text-sm">{error}</div>}
-
-                    <div className="p-2 border-b border-gray-200">
-                        <form onSubmit={handleCreateChat} className="flex flex-col gap-2">
-                            <input
-                                type="text"
-                                placeholder="Chat name"
-                                value={newChatName}
-                                onChange={(e) => setNewChatName(e.target.value)}
-                                className="w-full p-2 border rounded-lg text-sm"
-                                disabled={isCreatingChat}
-                            />
-                            <input
-                                type="text"
-                                placeholder="Participant UUIDs (comma-separated)"
-                                value={newChatParticipants}
-                                onChange={(e) => setNewChatParticipants(e.target.value)}
-                                className="w-full p-2 border rounded-lg text-sm"
-                                disabled={isCreatingChat}
-                            />
-                            <button
-                                type="submit"
-                                className={`p-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 ${isCreatingChat ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                disabled={isCreatingChat}
-                            >
-                                {isCreatingChat ? 'Creating...' : 'Create Chat'}
-                            </button>
-                        </form>
-                    </div>
 
                     <div className="flex flex-1 overflow-hidden">
                         <div className="w-1/3 border-r border-gray-200 overflow-y-auto">
@@ -262,10 +211,12 @@ export default function Chat({ userUuid }) {
                                     <button
                                         key={chat.chat_id}
                                         onClick={() => selectChat(chat.chat_id)}
-                                        className={`w-full text-left p-2 text-sm truncate ${selectedChat === chat.chat_id
-                                            ? 'bg-blue-100 text-blue-800'
-                                            : 'hover:bg-gray-100 text-gray-600'
-                                            }`}
+                                        className={`w-full text-left p-2 text-sm truncate ${
+                                            selectedChat === chat.chat_id
+                                                ? 'bg-blue-100 text-blue-800'
+                                                : 'hover:bg-gray-100 text-gray-600'
+                                        }`}
+                                        aria-label={`Select chat ${chat.name}`}
                                     >
                                         {chat.name}
                                     </button>
@@ -289,18 +240,26 @@ export default function Chat({ userUuid }) {
                                         messages.map((message) => (
                                             <div
                                                 key={message.message_id}
-                                                className={`p-2 mb-2 rounded-lg text-sm ${message.from_user === userUuid
-                                                    ? 'bg-blue-100 text-blue-800 ml-4'
-                                                    : 'bg-gray-100 text-gray-600 mr-4'
-                                                    }`}
+                                                className={`p-2 mb-2 rounded-lg text-sm max-w-[75%] ${
+                                                    message.from_user === userUuid
+                                                        ? 'bg-blue-100 text-blue-800 ml-auto'
+                                                        : 'bg-gray-100 text-gray-600 mr-auto'
+                                                } break-words overflow-hidden`}
                                             >
                                                 <p className="font-medium">
                                                     {message.from_user === userUuid ? 'You' : 'Other'}
                                                 </p>
-                                                <p>{message.content}</p>
-                                                <p className="text-xs text-gray-400">
-                                                    {formatTime(message.message_time)}
-                                                </p>
+                                                <p className="break-words">{message.content}</p>
+                                                <div className="flex justify-between items-center">
+                                                    <p className="text-xs text-gray-400">
+                                                        {formatTime(message.message_time)}
+                                                    </p>
+                                                    {message.from_user === userUuid && (
+                                                        <p className="text-xs text-green-500">
+                                                            {message.read ? '✓ Read' : '✓ Sent'}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))
                                     ) : (
@@ -320,8 +279,11 @@ export default function Chat({ userUuid }) {
                                         placeholder="Type a message..."
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
-                                        className={`w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isSendingMessage ? 'opacity-50' : ''}`}
+                                        className={`w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                            isSendingMessage ? 'opacity-50' : ''
+                                        }`}
                                         disabled={isSendingMessage}
+                                        aria-label="Type a message"
                                     />
                                 </form>
                             )}
@@ -333,6 +295,7 @@ export default function Chat({ userUuid }) {
             <button
                 onClick={toggleChat}
                 className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+                aria-label={isChatOpen ? 'Close chat' : 'Open chat'}
             >
                 <svg
                     className="w-6 h-6"
@@ -340,6 +303,7 @@ export default function Chat({ userUuid }) {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
                 >
                     <path
                         strokeLinecap="round"

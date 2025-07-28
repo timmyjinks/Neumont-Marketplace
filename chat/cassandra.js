@@ -287,7 +287,7 @@ const markMessagesRead = async (client, chatId) => {
         `,
         params: [
           Uuid.fromString(chatId),
-          msg.message_time, // assume it's already a TimeUuid object
+          msg.message_time,
           Uuid.fromString(msg.message_id)
         ]
       }));
