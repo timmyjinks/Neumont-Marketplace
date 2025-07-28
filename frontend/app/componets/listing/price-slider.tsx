@@ -87,11 +87,13 @@ const PriceRangeSlider = forwardRef<PriceRangeHandle, Props>(({ value, onChange 
 
   const handleMinChange = (valueNum: number) => {
     const newMin = Math.min(valueNum, max - 1);
+    if(newMin < 0) return
     if (onChange) onChange([newMin, max]);
   };
 
   const handleMaxChange = (valueNum: number) => {
     const newMax = Math.max(valueNum, min + 1);
+    if(newMax > 100) return
     if (onChange) onChange([min, newMax]);
   };
 
