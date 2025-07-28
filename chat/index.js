@@ -1,8 +1,11 @@
-const { client, addChat, addMessage, getChats, getChat, deleteChat, getMessages, updateMessage, getMessage, markMessagesRead } = require('./cassandra');
+const { client, addChat, addMessage, getChats, deleteChat, getMessages, updateMessage, getMessage, markMessagesRead } = require('./cassandra');
 const express = require('express');
+var cors = require('cors')
 const { validate: isUuid } = require('uuid');
 const app = express();
 const port = 10101; // Blackjack
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -12,9 +15,10 @@ app.get('/', (req, res) => {
 });
 
 // Get all chats
-app.get('/chat/', async (req, res) => {
+app.get('/chat/:userId', async (req, res) => {
+  const {userId} = req.params;
   try {
-    const chats = await getChats(client);
+    const chats = await getChats(client,userId);
     res.json(chats);
   } catch (err) {
     console.error('Error fetching chats:', err);
@@ -85,26 +89,6 @@ app.post('/chat/:chatId', async (req, res) => {
   } catch (err) {
     console.error('Error adding message:', err);
     res.status(500).json({ error: 'Failed to add message' });
-  }
-});
-
-// Get a specific chat
-app.get('/chat/:chatId', async (req, res) => {
-  const { chatId } = req.params;
-
-  if (!isUuid(chatId)) {
-    return res.status(400).json({ error: 'Invalid chat ID' });
-  }
-
-  try {
-    const chat = await getChat(client, chatId);
-    if (!chat) {
-      return res.status(404).json({ error: 'Chat not found' });
-    }
-    res.json(chat);
-  } catch (err) {
-    console.error(`Error fetching chat ${chatId}:`, err);
-    res.status(500).json({ error: 'Failed to fetch chat' });
   }
 });
 
