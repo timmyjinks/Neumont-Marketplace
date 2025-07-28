@@ -46,7 +46,7 @@ export default function Home() {
     }
     try {
       console.log('Checking existing chats for userUuid:', userUuid);
-      const response = await fetch(`${apiBaseUrl}/chat?userId=${encodeURIComponent(userUuid)}`);
+      const response = await fetch(`${apiBaseUrl}/chat/${encodeURIComponent(userUuid)}`);
       if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.error || 'Failed to fetch chats');

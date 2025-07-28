@@ -269,27 +269,42 @@ const markMessagesRead = async (client, chatId) => {
   if (!isUuid(chatId) || uuidVersion(chatId) !== 4) {
     throw new Error('Invalid chatId format, must be a valid v4 UUID');
   }
+
   if (!(await chatExists(client, chatId))) {
     throw new Error('Chat not found');
   }
 
   try {
     const messages = await getMessages(client, chatId);
-    const batchQueries = messages.map(msg => ({
-      query: `
-        UPDATE market_chat.messages 
-        SET read = true 
-        WHERE chat_id = ? AND message_time = ? AND message_id = ?;
-      `,
-      params: [cassandra.types.Uuid.fromString(chatId), msg.message_time, cassandra.types.Uuid.fromString(msg.message_id)]
-    }));
+
+    const batchQueries = messages
+      .filter(msg => isUuid(msg.message_id)) // Only include valid UUIDs
+      .map(msg => ({
+        query: `
+          UPDATE market_chat.messages 
+          SET read = true 
+          WHERE chat_id = ? AND message_time = ? AND message_id = ?;
+        `,
+        params: [
+          Uuid.fromString(chatId),
+          msg.message_time, // assume it's already a TimeUuid object
+          Uuid.fromString(msg.message_id)
+        ]
+      }));
+
+    if (batchQueries.length === 0) {
+      console.warn(`No valid messages to update for chat ${chatId}`);
+      return;
+    }
+
     await client.batch(batchQueries, { prepare: true });
     console.log(`Messages in chat ${chatId} marked as read`);
   } catch (err) {
-    console.error(`Failed to mark messages as read in chat ${chatId}:`, err);
+    console.error(`Failed to mark messages as read in chat ${chatId}:`, err.stack || err);
     throw err;
   }
 };
+
 
 module.exports = {
   client,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { validate as isUuid } from 'uuid';
+import uuidTime from 'uuid-time';
 
 export default function Chat({ userUuid }) {
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -72,9 +73,13 @@ export default function Chat({ userUuid }) {
                     throw new Error(errorData.error || `Failed to fetch messages: ${response.statusText}`);
                 }
                 const data = await response.json();
-                const sortedMessages = data.sort((a, b) =>
-                    new Date(a.message_time).getTime() - new Date(b.message_time).getTime()
-                );
+                const sortedMessages = data.sort((a, b) => {
+                    try {
+                        return uuidTime.v1(a.message_time) - uuidTime.v1(b.message_time);
+                    } catch {
+                        return 0;
+                    }
+                });
                 setMessages(sortedMessages);
                 scrollToBottom();
 
@@ -122,17 +127,16 @@ export default function Chat({ userUuid }) {
             }
             const data = await response.json();
 
-            setMessages((prev) => [
-                ...prev,
-                {
-                    chat_id: selectedChat,
-                    message_time: data.message_time,
-                    message_id: data.message_id,
-                    from_user: userUuid,
-                    content: newMessage.trim(),
-                    read: false,
-                },
-            ]);
+            const newMsg = {
+                chat_id: selectedChat,
+                message_time: data.message_time,
+                message_id: data.message_id,
+                from_user: userUuid,
+                content: newMessage.trim(),
+                read: false,
+            };
+
+            setMessages((prev) => [...prev, newMsg]);
             setNewMessage('');
             setTimeout(scrollToBottom, 100);
         } catch (err) {
@@ -149,10 +153,10 @@ export default function Chat({ userUuid }) {
 
         const participants = newChatParticipants
             .split(',')
-            .map(id => id.trim())
-            .filter(id => id);
+            .map((id) => id.trim())
+            .filter((id) => id);
 
-        if (participants.length < 2 || !participants.every(id => isUuid(id))) {
+        if (participants.length < 2 || !participants.every((id) => isUuid(id))) {
             setError('At least two valid participant UUIDs are required, separated by commas.');
             return;
         }
@@ -194,14 +198,18 @@ export default function Chat({ userUuid }) {
         }
     };
 
-    const formatTime = (timestamp) => {
-        const date = new Date(timestamp);
-        return isNaN(date.getTime())
-            ? 'Invalid time'
-            : new Intl.DateTimeFormat('en-US', {
-                  hour: 'numeric',
-                  minute: 'numeric',
-              }).format(date);
+    const formatTime = (uuid) => {
+        try {
+            const timestamp = uuidTime.v1(uuid); // Extract milliseconds from timeuuid
+            const date = new Date(timestamp);
+            return new Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+            }).format(date);
+        } catch (err) {
+            console.warn('Invalid timeuuid:', uuid);
+            return 'Invalid time';
+        }
     };
 
     return (
@@ -213,9 +221,7 @@ export default function Chat({ userUuid }) {
                         <button onClick={toggleChat} className="text-gray-500 hover:text-gray-700">✕</button>
                     </div>
 
-                    {error && (
-                        <div className="p-2 bg-red-100 text-red-600 text-sm">{error}</div>
-                    )}
+                    {error && <div className="p-2 bg-red-100 text-red-600 text-sm">{error}</div>}
 
                     <div className="p-2 border-b border-gray-200">
                         <form onSubmit={handleCreateChat} className="flex flex-col gap-2">
@@ -224,7 +230,7 @@ export default function Chat({ userUuid }) {
                                 placeholder="Chat name"
                                 value={newChatName}
                                 onChange={(e) => setNewChatName(e.target.value)}
-                                className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full p-2 border rounded-lg text-sm"
                                 disabled={isCreatingChat}
                             />
                             <input
@@ -232,12 +238,12 @@ export default function Chat({ userUuid }) {
                                 placeholder="Participant UUIDs (comma-separated)"
                                 value={newChatParticipants}
                                 onChange={(e) => setNewChatParticipants(e.target.value)}
-                                className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full p-2 border rounded-lg text-sm"
                                 disabled={isCreatingChat}
                             />
                             <button
                                 type="submit"
-                                className={`p-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors ${isCreatingChat ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`p-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 ${isCreatingChat ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 disabled={isCreatingChat}
                             >
                                 {isCreatingChat ? 'Creating...' : 'Create Chat'}
