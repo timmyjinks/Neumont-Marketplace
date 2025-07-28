@@ -62,9 +62,6 @@ export default function ProfileDashboard() {
         theme === "dark" ? "bg-zinc-950 text-white" : "bg-white text-zinc-900"
       }`}
     >
-      {/* Sidebar */}
-      <SideBar />
-
       {/* Main Content */}
       <main className="relative flex flex-col flex-1 overflow-y-auto p-8 space-y-10">
         {/* Header */}

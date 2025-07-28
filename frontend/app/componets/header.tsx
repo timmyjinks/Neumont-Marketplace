@@ -11,7 +11,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
         {/* Left: Logo & Text */}
         <div className="flex items-center gap-4">
-          <Link href="/" className="shrink-0">
+          <Link href="/listings" className="shrink-0">
             <Image
               src={logo}
               alt="Logo"
@@ -30,7 +30,7 @@ export default function Header() {
 
         {/* Right: Action Icons */}
         <div className="flex items-center gap-4 shrink-0">
-          <Link href="/">
+          <Link href="/chat">
             <Image
               src={chat}
               alt="Chat"
@@ -39,7 +39,7 @@ export default function Header() {
               className="p-1 rounded-full border border-[#fedc04] bg-zinc-800 hover:bg-[#fedc04] transition duration-300 ease-in-out"
             />
           </Link>
-          <Link href="/" className="shrink-0">
+          <Link href="/profile" className="shrink-0">
             <Image
               src={profile}
               alt="Profile"
