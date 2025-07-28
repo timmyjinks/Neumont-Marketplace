@@ -1,3 +1,4 @@
+
 services:
   cassandra:
     image: cassandra:latest
@@ -6,13 +7,15 @@ services:
       - 9042:9042
     volumes:
       - cassandra_data:/var/lib/cassandra
+      - ./chat/db.cql:/db.cql:ro
     networks:
       - neumont_market
     healthcheck:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
+    command: ["bash", "-c", "docker-entrypoint.sh cassandra -f & sleep 60 && cqlsh -f /db.cql"]
 
   express:
     build: ./chat
@@ -25,7 +28,8 @@ services:
     networks:
       - neumont_market
     environment:
-      - CASSANDRA_CONTACT_POINT=cassandra  # optional, for env config
+      - CASSANDRA_CONTACT_POINT=cassandra
+    restart: unless-stopped
 
 volumes:
   cassandra_data:
