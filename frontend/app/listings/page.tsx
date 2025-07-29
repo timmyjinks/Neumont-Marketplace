@@ -76,11 +76,12 @@ export default function ListingPage() {
               >
                 <Card
                   image_url={card.image_url}
+                  item_name={card.item_name}
                   price={card.price}
                   category={card.category}
                   description={card.description}
                   payment_methods={card.payment_methods}
-                  onDelete={null}
+                  onDelete={null} // This codebase is on hopes and prayers
                   id={card.id}
                 />
               </div>
