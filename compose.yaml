@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   cassandra:
     image: cassandra:latest
@@ -6,17 +8,35 @@ services:
       - 9042:9042
     volumes:
       - cassandra_data:/var/lib/cassandra
+      - ./chat/db.cql:/db.cql:ro
     networks:
       - neumont_market
-  
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    command: >
+      bash -c "
+        docker-entrypoint.sh cassandra -f &
+        until cqlsh -e 'describe keyspaces'; do sleep 5; done;
+        cqlsh -f /db.cql;
+        wait
+      "
+
   express:
     build: ./chat
+    container_name: express
     ports:
       - 10101:10101
     depends_on:
-      - cassandra
+      cassandra:
+        condition: service_healthy
     networks:
       - neumont_market
+    environment:
+      - CASSANDRA_CONTACT_POINT=cassandra
+    restart: unless-stopped
 
 volumes:
   cassandra_data:
