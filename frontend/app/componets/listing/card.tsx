@@ -4,7 +4,8 @@ type CardProps = {
   payment_methods: string[];
   description: string;
   price: Number;
-  onDelete: (id: string) => void | null;
+  onDelete?: ((id: string) => void | null )| null;
+  onMessage?: (id: string) => void;
   id: string;
 };
 
@@ -15,6 +16,7 @@ export default function Card({
   payment_methods,
   price,
   onDelete,
+  onMessage,
   id,
 }: CardProps) {
   return (
@@ -37,15 +39,16 @@ export default function Card({
       {/* Payment Method */}
       <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
         <h2 className="text-sm font-semibold text-white">Payment Methods</h2>
-        {payment_methods !== null &&
-          payment_methods.map((method, i) => (
+        <div className="flex gap-2">
+          {payment_methods?.map((method, i) => (
             <span key={i} className="text-xs text-[#fedc04] font-medium">
               {method}
             </span>
           ))}
+        </div>
       </div>
 
-      {/* Payment Method */}
+      {/* Price */}
       <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
         <h2 className="text-sm font-semibold text-white">Price</h2>
         <span className="text-xs text-[#fedc04] font-medium">{price}</span>
@@ -55,14 +58,26 @@ export default function Card({
       <div className="p-4 bg-zinc-800 border-t border-zinc-700 text-sm text-zinc-300">
         {description}
       </div>
-      {onDelete && (
-        <button
-          onClick={() => onDelete(id)}
-          className="bg-red-500 text-white px-4 py-2 rounded-md"
-        >
-          Delete
-        </button>
-      )}
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 p-4 bg-zinc-900">
+        {onDelete && (
+          <button
+            onClick={() => onDelete(id)}
+            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+          >
+            Delete
+          </button>
+        )}
+        {onMessage && (
+          <button
+            onClick={() => onMessage(id)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          >
+            Message User
+          </button>
+        )}
+      </div>
     </div>
   );
 }

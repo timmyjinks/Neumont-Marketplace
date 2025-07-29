@@ -4,6 +4,8 @@ import Card from "@/app/componets/listing/card";
 import FilterMenu from "@/app/componets/listing/filter-menu";
 import { get_listings } from "@/lib/listing-actions";
 import { useRouter, useSearchParams } from "next/navigation";
+import Chat from "../componets/chat";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ListingPage() {
   const router = useRouter();
@@ -19,6 +21,20 @@ export default function ListingPage() {
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userUuid, setUserUuid] = useState("");
+  useEffect(() => {
+          const getUUID = async () => {
+              const supabase = createClient();
+              const { data, error } = await supabase.auth.getUser();
+              if (data?.user) {
+                  setUserUuid(data.user.id);
+              } else {
+                  console.error('Failed to get user UUID:', error);
+                  setError('Unable to authenticate user.');
+              }
+          };
+          getUUID();
+      }, []);
 
   // Update URL when filters change
   useEffect(() => {
@@ -39,6 +55,7 @@ export default function ListingPage() {
           filters.maxPrice,
           filters.condition,
         );
+        console.log(data);
         setListings(data.data || []);
         setError("");
       } catch (err) {
@@ -81,6 +98,9 @@ export default function ListingPage() {
                   description={card.description}
                   payment_methods={card.payment_methods}
                   onDelete={null}
+                  onMessage={()=>{
+                    createChat(card.item_name,[card.user_id,userUuid])
+                  }}
                   id={card.id}
                 />
               </div>
@@ -90,6 +110,27 @@ export default function ListingPage() {
           <p>Error</p>
         )}
       </main>
+      <Chat />
     </div>
   );
 }
+
+
+async function createChat(itemName: string, participantIds: string[]) {
+    const response = await fetch('http://0.0.0.:10101/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: itemName,
+        participants: participantIds,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create chat');
+    }
+
+}
+
