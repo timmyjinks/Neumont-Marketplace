@@ -2,9 +2,9 @@ const cassandra = require('cassandra-driver');
 const { v4: uuidv4, validate: isUuid, version: uuidVersion } = require('uuid');
 
 const client = new cassandra.Client({
-  contactPoints: ['cassandra'],
-  localDataCenter: 'datacenter1',
-  keyspace: 'market_chat'
+  contactPoints: ['0.0.0.0'], 
+  localDataCenter: 'MyMacM3', 
+  keyspace: 'chat_app' 
 });
 
 async function connectClient() {
