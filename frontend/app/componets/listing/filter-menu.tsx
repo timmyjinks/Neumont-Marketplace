@@ -46,7 +46,7 @@ export default function FilterMenu({ filters, setFilters }: FilterMenuProps) {
 
   // Price range
   const minPrice = Number(filters.minPrice) || 0;
-  const maxPrice = Number(filters.maxPrice) || 100;
+  const maxPrice = Number (filters.maxPrice) || 1000;
   const handlePriceChange = (range: [number, number]) => {
     setFilters((f) => ({
       ...f,
