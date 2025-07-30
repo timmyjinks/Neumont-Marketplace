@@ -15,7 +15,7 @@ export default function ProfileDashboard() {
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("Electronics");
   const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
   const [formError, setFormError] = useState("");
   const [user, setUser] = useState<any>({});
@@ -163,7 +163,6 @@ export default function ProfileDashboard() {
                       !description ||
                       !imageFile ||
                       !category ||
-                      paymentMethods.length === 0 ||
                       !price ||
                       isNaN(Number(price)) ||
                       Number(price) <= 0
@@ -207,7 +206,8 @@ export default function ProfileDashboard() {
                         );
                         setIsSubmitting(false);
                         return;
-                      }
+                      } else{
+                        setFormError("");
                       // Reset form and close modal
                       setItemName("");
                       setDescription("");
@@ -216,6 +216,7 @@ export default function ProfileDashboard() {
                       setPaymentMethods([]);
                       setPrice("");
                       setModalOpen(false);
+                      }
                     } catch (err: any) {
                       setFormError(err?.message || "Unknown error");
                     } finally {
