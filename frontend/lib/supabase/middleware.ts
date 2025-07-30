@@ -49,7 +49,6 @@ export async function updateSession(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/profile";
-    console.log(url);
     return NextResponse.redirect(url);
   }
   return supabaseResponse;
