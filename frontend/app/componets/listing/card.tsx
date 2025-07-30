@@ -1,6 +1,7 @@
 type CardProps = {
   image_url: string;
   category: string;
+  item_name: string;
   payment_methods: string[];
   description: string;
   price: Number;
@@ -10,6 +11,7 @@ type CardProps = {
 
 export default function Card({
   image_url,
+  item_name,
   category,
   description,
   payment_methods,
@@ -34,6 +36,12 @@ export default function Card({
         />
       </div>
 
+      {/* Item Name */}
+      <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
+        <h2 className="text-sm font-semibold text-white">Name</h2>
+        <span className="text-xs text-[#fedc04] font-medium">{item_name}</span>
+      </div>
+
       {/* Payment Method */}
       <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
         <h2 className="text-sm font-semibold text-white">Payment Methods</h2>
@@ -45,15 +53,18 @@ export default function Card({
           ))}
       </div>
 
-      {/* Payment Method */}
+      {/* Price Method */}
       <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
         <h2 className="text-sm font-semibold text-white">Price</h2>
         <span className="text-xs text-[#fedc04] font-medium">{price}</span>
       </div>
 
       {/* Description */}
-      <div className="p-4 bg-zinc-800 border-t border-zinc-700 text-sm text-zinc-300">
-        {description}
+      <div className="flex justify-between items-center px-4 py-2 bg-zinc-800 border-b border-zinc-700">
+        <h2 className="text-sm font-semibold text-white">Description</h2>
+        <span className="text-xs text-[#fedc04] font-medium">
+          {description}
+        </span>
       </div>
       {onDelete && (
         <button

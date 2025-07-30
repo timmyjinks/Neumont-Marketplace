@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PriceRangeSlider from "@/app/componets/listing/price-slider";
 import { useRouter } from "next/navigation";
 
-const categories = ["Electronics", "Clothing", "Books", "Other"];
+const categories = ["Electronics", "Clothing", "Books", "all"];
 
 const conditions = ["New", "Used"];
 
@@ -29,10 +29,19 @@ interface FilterMenuProps {
 
 export default function FilterMenu({ filters, setFilters }: FilterMenuProps) {
   const router = useRouter();
+  
+  // Local state for pending filters (not yet applied)
+  const [pendingFilters, setPendingFilters] = useState(filters);
+  const [sortBy, setSortBy] = useState<string>("");
+
+  // Update pending filters when actual filters change (e.g., from URL)
+  useEffect(() => {
+    setPendingFilters(filters);
+  }, [filters]);
 
   // Helper for category multi-select
-  const selectedCategories = filters.category
-    ? filters.category.split(",")
+  const selectedCategories = pendingFilters.category
+    ? pendingFilters.category.split(",")
     : [];
   const toggleCategory = (category: string) => {
     let newCategories: string[];
@@ -41,14 +50,14 @@ export default function FilterMenu({ filters, setFilters }: FilterMenuProps) {
     } else {
       newCategories = [...selectedCategories, category];
     }
-    setFilters((f) => ({ ...f, category: newCategories.join(",") }));
+    setPendingFilters((f) => ({ ...f, category: newCategories.join(",") }));
   };
 
   // Price range
   const minPrice = Number(filters.minPrice) || 0;
   const maxPrice = Number (filters.maxPrice) || 1000;
   const handlePriceChange = (range: [number, number]) => {
-    setFilters((f) => ({
+    setPendingFilters((f) => ({
       ...f,
       minPrice: String(range[0]),
       maxPrice: String(range[1]),
@@ -57,14 +66,12 @@ export default function FilterMenu({ filters, setFilters }: FilterMenuProps) {
 
   // Condition
   const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilters((f) => ({ ...f, condition: e.target.value }));
+    setPendingFilters((f) => ({ ...f, condition: e.target.value }));
   };
 
-  // Sort (not implemented in parent, but keep UI)
-  const [sortBy, setSortBy] = useState<string>("");
-
   async function handleApplyFilter() {
-    // No-op: parent ListingPage already syncs filters to URL and fetches data
+    // Apply the pending filters to the actual filters state
+    setFilters(pendingFilters);
   }
 
   return (
@@ -101,7 +108,7 @@ export default function FilterMenu({ filters, setFilters }: FilterMenuProps) {
             Condition
           </label>
           <select
-            value={filters.condition}
+            value={pendingFilters.condition}
             onChange={handleConditionChange}
             className="block w-full rounded-md bg-zinc-900 border border-zinc-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#fedc04]"
           >

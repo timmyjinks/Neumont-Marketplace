@@ -18,7 +18,7 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/listings");
+  redirect("/listings?category=all&minPrice=1&maxPrice=100");
 }
 
 export async function signup(formData: FormData) {
@@ -39,7 +39,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/listings");
+  redirect("/");
 }
 
 export async function getUserInfo() {

@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 import { deleteItem } from "@/lib/listing-actions";
 import Header from "@/app/componets/header";
 
+const categories = ["Electronics", "Clothing", "Books", "Other"];
+
 export default function ProfileDashboard() {
   const [theme, setTheme] = useState("dark");
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,11 +24,15 @@ export default function ProfileDashboard() {
   const [price, setPrice] = useState("");
   const [items, setItems] = useState<any[]>([]);
 
+  const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCategory(e.target.value);
+  };
+
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme");
     if (storedTheme) setTheme(storedTheme);
     async function getItems() {
-      const supabase = await createClient();
+      const supabase = createClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -45,7 +51,7 @@ export default function ProfileDashboard() {
 
   useEffect(() => {
     async function getUser() {
-      const supabase = await createClient();
+      const supabase = createClient();
       const { data, error } = await supabase.auth.getUser();
 
       setUser(data.user);
@@ -171,7 +177,7 @@ export default function ProfileDashboard() {
                     setFormError("");
                     setIsSubmitting(true);
                     try {
-                      const supabase = await createClient();
+                      const supabase = createClient();
                       const {
                         data: { session },
                       } = await supabase.auth.getSession();
@@ -276,13 +282,17 @@ export default function ProfileDashboard() {
                     <label className="block text-sm font-medium mb-1">
                       Category
                     </label>
-                    <input
-                      type="text"
-                      className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white"
+                    <select
                       value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      required
-                    />
+                      onChange={handleConditionChange}
+                      className="block w-full rounded-md bg-zinc-900 border border-zinc-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#fedc04]"
+                    >
+                      {categories.map((cond) => (
+                        <option key={cond} value={cond}>
+                          {cond}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
