@@ -4,6 +4,7 @@ import Card from "@/app/componets/listing/card";
 import FilterMenu from "@/app/componets/listing/filter-menu";
 import { get_listings } from "@/lib/listing-actions";
 import { useRouter, useSearchParams } from "next/navigation";
+import Header from "@/app/componets/header";
 
 export default function ListingPage() {
   const router = useRouter();
@@ -51,7 +52,9 @@ export default function ListingPage() {
   }, [filters]);
 
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-white">
+    <div>
+      <Header />    
+      <div className="flex min-h-screen bg-zinc-950 text-white">
       {/* Sidebar */}
       <FilterMenu filters={filters} setFilters={setFilters} />
 
@@ -92,5 +95,7 @@ export default function ListingPage() {
         )}
       </main>
     </div>
+    </div>
+
   );
 }

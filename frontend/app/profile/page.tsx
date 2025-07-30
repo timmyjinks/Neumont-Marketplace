@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Card from "@/app/componets/listing/card";
 import { createClient } from "@/lib/supabase/client";
 import { deleteItem } from "@/lib/listing-actions";
+import Header from "@/app/componets/header";
 
 const categories = ["Electronics", "Clothing", "Books", "Other"];
 
@@ -59,14 +60,14 @@ export default function ProfileDashboard() {
   }, [theme]);
 
   return (
-    <div
+
+    <div>
+      <Header />    
+      <div
       className={`relative flex h-screen w-full font-sans overflow-hidden transition-colors duration-300 ${
         theme === "dark" ? "bg-zinc-950 text-white" : "bg-white text-zinc-900"
       }`}
     >
-      {/* Sidebar */}
-      <SideBar />
-
       {/* Main Content */}
       <main className="relative flex flex-col flex-1 overflow-y-auto p-8 space-y-10">
         {/* Header */}
@@ -333,5 +334,7 @@ export default function ProfileDashboard() {
         </div>
       </main>
     </div>
+    </div>
+
   );
 }

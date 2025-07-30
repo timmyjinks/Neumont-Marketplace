@@ -15,8 +15,9 @@ CREATE TABLE market_chat.chats (
 CREATE TABLE market_chat.messages (
   chat_id uuid,
   message_time timeuuid,
+  message_id uuid,
   from_user uuid,
   content text,
   read boolean,
-  PRIMARY KEY (chat_id, message_time)
-) WITH CLUSTERING ORDER BY (message_time ASC);
+  PRIMARY KEY (chat_id, message_time, message_id)
+) WITH CLUSTERING ORDER BY (message_time DESC);
